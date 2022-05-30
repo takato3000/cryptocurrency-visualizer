@@ -32,7 +32,6 @@ output_df = output_df.dropna(how="all")
 
 st.set_page_config(layout="wide")
 options = st.sidebar.selectbox("Currencies:", ["BTC", "ETH", "SOL"] )
-st.line_chart()
 c = st.container()
 c.header("rolling std")
 c.line_chart(output_df)
