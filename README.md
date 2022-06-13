@@ -7,3 +7,7 @@ pip install -r requirements.txt
 ```shell
 streamlit run std.py
 ```
+or
+```shell
+streamlit run black_scholes.py
+```
