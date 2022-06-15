@@ -1,9 +1,5 @@
-from datetime import date, datetime, timedelta
-
 import numpy as np
-import pandas as pd
 from numba import jit
-from pandas import DataFrame
 from scipy.stats import norm
 
 # Underlying price (per share): S;
@@ -11,6 +7,15 @@ from scipy.stats import norm
 # Time to maturity (years): T;
 # Continuously compounding risk-free interest rate: r;
 # Volatility: sigma; example:15% means 0.15 in sigma;
+
+
+class BlackScholes:
+    def __init__(self, S, K, T, r, sigma):
+        self.S = S
+        self.K = K
+        self.T = T
+        self.r = r
+        self.sigma = sigma
 
 
 @jit(nopython=True)
