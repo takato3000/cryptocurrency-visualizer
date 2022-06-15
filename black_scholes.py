@@ -11,9 +11,11 @@ from scipy.stats import norm
 import black_scholes_functions as bs
 
 def calculate(S, K, T, r, sigma):
-    result = DataFrame(np.array([[0.00, 0.00, 0.00, 0.00, 0.00]]), columns=["price", "delta", "gamma", "theta", "vega"])
-    result["price"][0] = bs.call_price(S, K, T, r, sigma)
-    result["delta"][0] = bs.call_delta(S, K, T, r, sigma)
+    result = DataFrame(data=np.zeros((1, 7)), columns=["call_price", "call_delta", "put_price", "put_delta", "gamma", "theta", "vega"])
+    result["call_price"][0] = bs.call_price(S, K, T, r, sigma)
+    result["call_delta"][0] = bs.call_delta(S, K, T, r, sigma)
+    result["put_price"][0] = bs.put_price(S, K, T, r, sigma)
+    result["put_delta"][0] = bs.put_delta(S, K, T, r, sigma)
     result["gamma"][0] = bs.call_gamma(S, K, T, r, sigma)
     result["theta"][0] = bs.call_theta(S, K, T, r, sigma)
     result["vega"][0] = bs.call_vega(S, K, T, r, sigma)
@@ -29,4 +31,4 @@ with st.form(key="parameters"):
     submitted = st.form_submit_button("Calculate")
     if submitted:
         result = calculate(S, K, T, r, sigma)
-        st.table(result)
+        st.dataframe(result)
