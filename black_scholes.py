@@ -12,7 +12,8 @@ from scipy.stats import norm
 import black_scholes_functions as bs
 
 def calculate(S: Union[int, float], K: Union[int, float], T: float, r: float, sigma: float) -> DataFrame: 
-    result = DataFrame(data=np.zeros((1, 7)), columns=["call_price", "call_delta", "put_price", "put_delta", "gamma", "theta", "vega"])
+    result = DataFrame(data=np.zeros((1, 8)), columns=["strike", "call_price", "call_delta", "put_price", "put_delta", "gamma", "theta", "vega"])
+    result["strike"][0] = K
     result["call_price"][0] = bs.call_price(S, K, T, r, sigma)
     result["call_delta"][0] = bs.call_delta(S, K, T, r, sigma)
     result["put_price"][0] = bs.put_price(S, K, T, r, sigma)
@@ -32,4 +33,5 @@ with st.form(key="parameters"):
     submitted = st.form_submit_button("Calculate")
     if submitted:
         result = calculate(S, K, T, r, sigma)
+        st.write(f"Underlying Price: {S}")
         st.dataframe(result)
