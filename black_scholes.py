@@ -1,5 +1,6 @@
 from datetime import date, datetime, timedelta
 from math import exp, log, pi, sqrt
+from typing import Union
 
 import altair as alt
 import numpy as np
@@ -10,7 +11,7 @@ from pandas import DataFrame
 from scipy.stats import norm
 import black_scholes_functions as bs
 
-def calculate(S, K, T, r, sigma):
+def calculate(S: Union[int, float], K: Union[int, float], T: float, r: float, sigma: float) -> DataFrame: 
     result = DataFrame(data=np.zeros((1, 7)), columns=["call_price", "call_delta", "put_price", "put_delta", "gamma", "theta", "vega"])
     result["call_price"][0] = bs.call_price(S, K, T, r, sigma)
     result["call_delta"][0] = bs.call_delta(S, K, T, r, sigma)
@@ -19,7 +20,7 @@ def calculate(S, K, T, r, sigma):
     result["gamma"][0] = bs.call_gamma(S, K, T, r, sigma)
     result["theta"][0] = bs.call_theta(S, K, T, r, sigma)
     result["vega"][0] = bs.call_vega(S, K, T, r, sigma)
-    return result.copy()
+    return result
 
 st.set_page_config(page_title="Black Scholes Calculator", layout="wide")
 with st.form(key="parameters"):
