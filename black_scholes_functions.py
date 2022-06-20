@@ -9,7 +9,7 @@ from scipy.stats import norm
 # Volatility: sigma; example:15% means 0.15 in sigma;
 
 
-class BlackScholes:
+class BlackScholesParams:
     def __init__(self, S, K, T, r, sigma):
         self.S = S
         self.K = K
