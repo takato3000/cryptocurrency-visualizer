@@ -2,14 +2,14 @@ import numpy as np
 from numba import jit
 from scipy.stats import norm
 
-# Underlying price (per share): S;
-# Strike price of the option (per share): K;
-# Time to maturity (years): T;
-# Continuously compounding risk-free interest rate: r;
-# Volatility: sigma; example:15% means 0.15 in sigma;
-
-
 class BlackScholesParams:
+
+    # Underlying price (per share): S;
+    # Strike price of the option (per share): K;
+    # Time to maturity (years): T;
+    # Continuously compounding risk-free interest rate: r, 0.03 means 3%;
+    # Volatility: sigma; example:15% means 0.15 in sigma;
+
     def __init__(self, S, K, T, r, sigma):
         self.S = S
         self.K = K
@@ -17,71 +17,60 @@ class BlackScholesParams:
         self.r = r
         self.sigma = sigma
 
+    def d1(self):
+        return (
+            (np.log(self.S / self.K) + (self.r + self.sigma**2 / 2.0) * self.T)
+            / self.sigma
+            * np.sqrt(self.T)
+        )
 
-@jit(nopython=True)
-def d1(S, K, T, r, sigma):
-    return (np.log(S / K) + (r + sigma ** 2 / 2.0) * T) / sigma * np.sqrt(T)
+    def d2(self):
+        return self.d1() - self.sigma * np.sqrt(self.T)
 
+    def call_price(self):
+        return self.S * norm.cdf(self.d1()) - self.K * np.exp(
+            -self.r * self.T
+        ) * norm.cdf(self.d2())
 
-@jit(nopython=True)
-def d2(S, K, T, r, sigma):
-    return d1(S, K, T, r, sigma) - sigma * np.sqrt(T)
+    def put_price(self):
+        return self.K * np.exp(-self.r * self.T) - self.S + self.call_price()
 
+    def call_delta(self):
+        return norm.cdf(self.d1())
 
-def call_price(S, K, T, r, sigma):
-    return S * norm.cdf(d1(S, K, T, r, sigma)) - K * np.exp(-r * T) * norm.cdf(
-        d2(S, K, T, r, sigma)
-    )
+    def call_gamma(self):
+        return norm.pdf(self.d1()) / (self.S * self.sigma * np.sqrt(self.T))
 
+    def call_theta(self):
+        return 0.01 * (
+            -(self.S * norm.pdf(self.d1()) * self.sigma) / (2 * np.sqrt(self.T))
+            - self.r * self.K * np.exp(-self.r * self.T) * norm.cdf(self.d2())
+        )
 
-def put_price(S, K, T, r, sigma):
-    return K * np.exp(-r * T) - S + call_price(S, K, T, r, sigma)
+    def call_vega(self):
+        return 0.01 * (self.S * norm.pdf(self.d1()) * np.sqrt(self.T))
 
+    def call_rho(self):
+        return 0.01 * (self.K * self.T * np.exp(-self.r * self.T) * norm.cdf(self.d2()))
 
-def call_delta(S, K, T, r, sigma):
-    return norm.cdf(d1(S, K, T, r, sigma))
+    # Put part below
 
+    def put_delta(self):
+        return -norm.cdf(-self.d1())
 
-def call_gamma(S, K, T, r, sigma):
-    return norm.pdf(d1(S, K, T, r, sigma)) / (S * sigma * np.sqrt(T))
+    def put_gamma(self):
+        return norm.pdf(self.d1()) / (self.S * self.sigma * np.sqrt(self.T))
 
+    def put_vega(self):
+        return 0.01 * (self.S * norm.pdf(self.d1()) * np.sqrt(self.T))
 
-def call_theta(S, K, T, r, sigma):
-    return 0.01 * (
-        -(S * norm.pdf(d1(S, K, T, r, sigma)) * sigma) / (2 * np.sqrt(T))
-        - r * K * np.exp(-r * T) * norm.cdf(d2(S, K, T, r, sigma))
-    )
+    def put_theta(self):
+        return 0.01 * (
+            -(self.S * norm.pdf(self.d1()) * self.sigma) / (2 * np.sqrt(self.T))
+            + self.r * self.K * np.exp(-self.r * self.T) * norm.cdf(-self.d2())
+        )
 
-
-def call_vega(S, K, T, r, sigma):
-    return 0.01 * (S * norm.pdf(d1(S, K, T, r, sigma)) * np.sqrt(T))
-
-
-def call_rho(S, K, T, r, sigma):
-    return 0.01 * (K * T * np.exp(-r * T) * norm.cdf(d2(S, K, T, r, sigma)))
-
-
-# Put part below
-
-
-def put_delta(S, K, T, r, sigma):
-    return -norm.cdf(-d1(S, K, T, r, sigma))
-
-
-def put_gamma(S, K, T, r, sigma):
-    return norm.pdf(d1(S, K, T, r, sigma)) / (S * sigma * np.sqrt(T))
-
-
-def put_vega(S, K, T, r, sigma):
-    return 0.01 * (S * norm.pdf(d1(S, K, T, r, sigma)) * np.sqrt(T))
-
-
-def put_theta(S, K, T, r, sigma):
-    return 0.01 * (
-        -(S * norm.pdf(d1(S, K, T, r, sigma)) * sigma) / (2 * np.sqrt(T))
-        + r * K * np.exp(-r * T) * norm.cdf(-d2(S, K, T, r, sigma))
-    )
-
-
-def put_rho(S, K, T, r, sigma):
-    return 0.01 * (-K * T * np.exp(-r * T) * norm.cdf(-d2(S, K, T, r, sigma)))
+    def put_rho(self):
+        return 0.01 * (
+            -self.K * self.T * np.exp(-self.r * self.T) * norm.cdf(-self.d2())
+        )
