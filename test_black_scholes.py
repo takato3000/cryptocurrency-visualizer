@@ -1,14 +1,7 @@
 import numpy as np
 import unittest
-import pytest
 
-from black_scholes_functions import (
-    BlackScholesParams as BlackScholesParams
-)
-from black_scholes import (
-    calculate_array as calculate_array,
-    calculate_single_point as calculate_single_point,
-)
+from black_scholes_functions import BlackScholesParams, calculate, calculate_array, calculate_single_point
 
 
 class TestBlackScholesFunctions(unittest.TestCase):
