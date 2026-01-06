@@ -5,7 +5,6 @@ import streamlit as st
 from datetime import datetime, timedelta
 import altair as alt
 
-@st.experimental_singleton
 def get_data(currency="BTC"):
     chart_res = requests.get(
     f"https://asia.deribit.com/api/v2/public/get_tradingview_chart_data?end_timestamp={int(datetime.now().timestamp()*1000)}&instrument_name={currency}-PERPETUAL&resolution=1D&start_timestamp={int((datetime.now()-timedelta(days=1000)).timestamp()*1000)}"
