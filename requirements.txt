@@ -3,3 +3,5 @@ altair
 requests
 pandas
 numpy
+numba
+scipy

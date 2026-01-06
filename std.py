@@ -5,10 +5,11 @@ import streamlit as st
 from datetime import datetime, timedelta
 import altair as alt
 
+
 def get_data(currency="BTC"):
     chart_res = requests.get(
-    f"https://asia.deribit.com/api/v2/public/get_tradingview_chart_data?end_timestamp={int(datetime.now().timestamp()*1000)}&instrument_name={currency}-PERPETUAL&resolution=1D&start_timestamp={int((datetime.now()-timedelta(days=1000)).timestamp()*1000)}"
-)
+        f"https://asia.deribit.com/api/v2/public/get_tradingview_chart_data?end_timestamp={int(datetime.now().timestamp() * 1000)}&instrument_name={currency}-PERPETUAL&resolution=1D&start_timestamp={int((datetime.now() - timedelta(days=1000)).timestamp() * 1000)}"
+    )
     df = pd.DataFrame(chart_res.json()["result"])
     df = df.astype({"ticks": "datetime64[ms]"})
     df.set_index("ticks", inplace=True)
@@ -27,7 +28,9 @@ def get_data(currency="BTC"):
 
 
 st.set_page_config(layout="wide")
-option = st.sidebar.selectbox("Currencies:", ["BTC", "ETH"], on_change=get_data, key="currency")
+option = st.sidebar.selectbox(
+    "Currencies:", ["BTC", "ETH"], on_change=get_data, key="currency"
+)
 df = get_data(st.session_state.currency)
 output_df = pd.DataFrame()
 output_df["rolling15_std"] = df["log_diff"].rolling(15).std()
@@ -60,15 +63,18 @@ std_col3.metric(
     label="365D",
     value="{value:.4%}".format(value=output_df["rolling365_std"].iloc[-1]),
     delta="{delta:.4%}".format(
-        delta=output_df["rolling365_std"].iloc[-1] - output_df["rolling365_std"].iloc[-2]
+        delta=output_df["rolling365_std"].iloc[-1]
+        - output_df["rolling365_std"].iloc[-2]
     ),
 )
 # mean_line = base.mark_rule(color='red').encode(x="mean(change):Q", size=alt.value(3))
 c2 = st.container()
 c2.header("Histogram of daily log changes")
-c2.altair_chart(bar.interactive(), width=True)
+c2.altair_chart(bar.interactive(), width="stretch")
 col1, col2, col3, col4 = c2.columns(4)
 col1.metric(label="Mean", value="{mean:.4%}".format(mean=df["log_diff"].mean()))
 col2.metric(label="Median", value="{median:.4%}".format(median=df["log_diff"].median()))
-col3.metric(label="Skew", value="{skew:.4f}".format(skew=df['log_diff'].skew()))
-col4.metric(label="Kurtosis", value="{kurtosis:.4f}".format(kurtosis=df['log_diff'].kurt()))
+col3.metric(label="Skew", value="{skew:.4f}".format(skew=df["log_diff"].skew()))
+col4.metric(
+    label="Kurtosis", value="{kurtosis:.4f}".format(kurtosis=df["log_diff"].kurt())
+)
