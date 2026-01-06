@@ -44,29 +44,29 @@ bar = base.mark_bar().encode(
 std_col1, std_col2, std_col3 = c.columns(3)
 std_col1.metric(
     label="15D",
-    value="{value:.4%}".format(value=output_df["rolling15_std"][-1]),
+    value="{value:.4%}".format(value=output_df["rolling15_std"].iloc[-1]),
     delta="{delta:.4%}".format(
-        delta=output_df["rolling15_std"][-1] - output_df["rolling15_std"][-2]
+        delta=output_df["rolling15_std"].iloc[-1] - output_df["rolling15_std"].iloc[-2]
     ),
 )
 std_col2.metric(
     label="30D",
-    value="{value:.4%}".format(value=output_df["rolling30_std"][-1]),
+    value="{value:.4%}".format(value=output_df["rolling30_std"].iloc[-1]),
     delta="{delta:.4%}".format(
-        delta=output_df["rolling30_std"][-1] - output_df["rolling30_std"][-2]
+        delta=output_df["rolling30_std"].iloc[-1] - output_df["rolling30_std"].iloc[-2]
     ),
 )
 std_col3.metric(
     label="365D",
-    value="{value:.4%}".format(value=output_df["rolling365_std"][-1]),
+    value="{value:.4%}".format(value=output_df["rolling365_std"].iloc[-1]),
     delta="{delta:.4%}".format(
-        delta=output_df["rolling365_std"][-1] - output_df["rolling365_std"][-2]
+        delta=output_df["rolling365_std"].iloc[-1] - output_df["rolling365_std"].iloc[-2]
     ),
 )
 # mean_line = base.mark_rule(color='red').encode(x="mean(change):Q", size=alt.value(3))
 c2 = st.container()
-c2.header("Histrogram of daily log changes")
-c2.altair_chart(bar.interactive(), use_container_width=True)
+c2.header("Histogram of daily log changes")
+c2.altair_chart(bar.interactive(), width=True)
 col1, col2, col3, col4 = c2.columns(4)
 col1.metric(label="Mean", value="{mean:.4%}".format(mean=df["log_diff"].mean()))
 col2.metric(label="Median", value="{median:.4%}".format(median=df["log_diff"].median()))
